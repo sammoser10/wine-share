@@ -18,8 +18,8 @@ export default function FriendsPage() {
   const [pendingReceived, setPendingReceived] = useState<
     FriendshipWithProfile[]
   >([]);
-  const [searchEmail, setSearchEmail] = useState("");
-  const [searchResult, setSearchResult] = useState<Profile | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Profile[]>([]);
   const [searchError, setSearchError] = useState("");
   const [sending, setSending] = useState(false);
   const supabase = createClient();
@@ -70,23 +70,26 @@ export default function FriendsPage() {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSearchResult(null);
+    setSearchResults([]);
     setSearchError("");
 
-    if (!searchEmail.trim()) return;
+    const q = searchQuery.trim().replace(/^@/, "");
+    if (!q) return;
 
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
-      .eq("email", searchEmail.trim())
-      .single();
+      .ilike("display_name", `%${q}%`);
 
-    if (error || !data) {
-      setSearchError("No user found with that email");
-    } else if (data.id === user?.id) {
-      setSearchError("That's you!");
+    if (error || !data || data.length === 0) {
+      setSearchError("No user found matching that name");
     } else {
-      setSearchResult(data);
+      const filtered = data.filter((p) => p.id !== user?.id);
+      if (filtered.length === 0) {
+        setSearchError("No other users found matching that name");
+      } else {
+        setSearchResults(filtered);
+      }
     }
   };
 
@@ -100,8 +103,8 @@ export default function FriendsPage() {
       status: "pending",
     });
 
-    setSearchResult(null);
-    setSearchEmail("");
+    setSearchResults([]);
+    setSearchQuery("");
     setSending(false);
     fetchFriends();
   };
@@ -123,10 +126,10 @@ export default function FriendsPage() {
 
       <form onSubmit={handleSearch} className="flex gap-2 mb-6">
         <input
-          type="email"
-          placeholder="Search by email..."
-          value={searchEmail}
-          onChange={(e) => setSearchEmail(e.target.value)}
+          type="text"
+          placeholder="Search by name..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
           className="glass-input flex-1 px-4 py-2.5 text-sm"
         />
         <button type="submit" className="accent-btn px-4 py-2.5 text-sm">
@@ -138,27 +141,31 @@ export default function FriendsPage() {
         <p className="text-red-500 text-xs mb-4 text-center">{searchError}</p>
       )}
 
-      {searchResult && (
-        <GlassCard className="mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Avatar name={searchResult.display_name} />
-              <div>
-                <p className="font-medium text-sm">
-                  {searchResult.display_name}
-                </p>
-                <p className="text-muted text-xs">{searchResult.email}</p>
+      {searchResults.length > 0 && (
+        <div className="flex flex-col gap-2 mb-6">
+          {searchResults.map((result) => (
+            <GlassCard key={result.id}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Avatar name={result.display_name} />
+                  <div>
+                    <p className="font-medium text-sm">
+                      {result.display_name}
+                    </p>
+                    <p className="text-muted text-xs">{result.email}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => sendRequest(result.id)}
+                  disabled={sending}
+                  className="accent-btn px-3 py-1.5 text-xs"
+                >
+                  {sending ? "..." : "Add"}
+                </button>
               </div>
-            </div>
-            <button
-              onClick={() => sendRequest(searchResult.id)}
-              disabled={sending}
-              className="accent-btn px-3 py-1.5 text-xs"
-            >
-              {sending ? "..." : "Add"}
-            </button>
-          </div>
-        </GlassCard>
+            </GlassCard>
+          ))}
+        </div>
       )}
 
       {pendingReceived.length > 0 && (
