@@ -30,6 +30,7 @@ export default function NewProposalPage() {
 
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchFriends = useCallback(async () => {
     if (!user) return;
@@ -74,54 +75,55 @@ export default function NewProposalPage() {
     e.preventDefault();
     if (!user || selectedFriends.length === 0) return;
     setSubmitting(true);
+    setError(null);
 
-    const { data: bottle } = await supabase
-      .from("bottles")
-      .insert({
-        name: wineName,
-        producer,
-        vintage: vintage ? parseInt(vintage) : null,
-        region: region || null,
-        varietal: varietal || null,
-        image_url: imageUrl || null,
-      })
-      .select()
-      .single();
+    try {
+      const { data: bottle, error: bottleError } = await supabase
+        .from("bottles")
+        .insert({
+          name: wineName,
+          producer,
+          vintage: vintage ? parseInt(vintage) : null,
+          region: region || null,
+          varietal: varietal || null,
+          image_url: imageUrl || null,
+        })
+        .select()
+        .single();
 
-    if (!bottle) {
+      if (bottleError) throw new Error(`Failed to create bottle: ${bottleError.message}`);
+
+      const { data: proposal, error: proposalError } = await supabase
+        .from("proposals")
+        .insert({
+          bottle_id: bottle.id,
+          creator_id: user.id,
+          price: parseFloat(price) || 0,
+          tax: parseFloat(tax) || 0,
+          shipping: parseFloat(shipping) || 0,
+          status: "pending",
+          notes: notes || null,
+        })
+        .select()
+        .single();
+
+      if (proposalError) throw new Error(`Failed to create proposal: ${proposalError.message}`);
+
+      const splits = selectedFriends.map((friendId) => ({
+        proposal_id: proposal.id,
+        user_id: friendId,
+        share_amount: Math.round(perPerson * 100) / 100,
+        status: "pending" as const,
+      }));
+
+      const { error: splitsError } = await supabase.from("proposal_splits").insert(splits);
+      if (splitsError) throw new Error(`Failed to create splits: ${splitsError.message}`);
+
+      router.push("/proposals");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
       setSubmitting(false);
-      return;
     }
-
-    const { data: proposal } = await supabase
-      .from("proposals")
-      .insert({
-        bottle_id: bottle.id,
-        creator_id: user.id,
-        price: parseFloat(price) || 0,
-        tax: parseFloat(tax) || 0,
-        shipping: parseFloat(shipping) || 0,
-        status: "pending",
-        notes: notes || null,
-      })
-      .select()
-      .single();
-
-    if (!proposal) {
-      setSubmitting(false);
-      return;
-    }
-
-    const splits = selectedFriends.map((friendId) => ({
-      proposal_id: proposal.id,
-      user_id: friendId,
-      share_amount: Math.round(perPerson * 100) / 100,
-      status: "pending" as const,
-    }));
-
-    await supabase.from("proposal_splits").insert(splits);
-
-    router.push("/proposals");
   };
 
   return (
@@ -327,6 +329,12 @@ export default function NewProposalPage() {
             className="glass-input w-full px-3 py-2.5 text-sm resize-none h-20"
           />
         </GlassCard>
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm">
+            {error}
+          </div>
+        )}
 
         <button
           type="submit"
