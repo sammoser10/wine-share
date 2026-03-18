@@ -32,12 +32,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex flex-1 items-center justify-center min-h-screen bg-wine-gradient px-6">
+    <div className="flex flex-1 items-center justify-center min-h-screen bg-app-gradient px-6">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-10">
-          <div className="w-20 h-20 rounded-full bg-wine/30 border border-wine-glow/30 flex items-center justify-center mb-4">
+          <div className="w-20 h-20 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mb-4">
             <svg
-              className="w-10 h-10 text-wine-glow"
+              className="w-10 h-10 text-accent"
               fill="currentColor"
               viewBox="0 0 24 24"
             >
@@ -45,7 +45,7 @@ export default function LoginPage() {
             </svg>
           </div>
           <h1 className="text-3xl font-bold tracking-tight">Compartir</h1>
-          <p className="text-white/40 text-sm mt-1">
+          <p className="text-muted text-sm mt-1">
             Split wine with friends
           </p>
         </div>
@@ -69,21 +69,21 @@ export default function LoginPage() {
           />
 
           {error && (
-            <p className="text-red-400 text-xs text-center">{error}</p>
+            <p className="text-red-500 text-xs text-center">{error}</p>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="wine-btn px-4 py-3 text-sm disabled:opacity-50"
+            className="accent-btn px-4 py-3 text-sm disabled:opacity-50"
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
-        <p className="text-center text-white/30 text-sm mt-8">
+        <p className="text-center text-muted text-sm mt-8">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-wine-glow hover:underline">
+          <Link href="/signup" className="text-accent hover:underline">
             Sign Up
           </Link>
         </p>

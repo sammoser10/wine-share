@@ -10,13 +10,13 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "Compartir",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#7f1d1d",
+  themeColor: "#6b5ce7",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,

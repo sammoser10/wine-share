@@ -9,7 +9,7 @@ const navItems = [
     label: "Proposals",
     icon: (active: boolean) => (
       <svg
-        className={`w-6 h-6 ${active ? "text-wine-glow" : "text-white/40"}`}
+        className={`w-6 h-6 ${active ? "text-accent" : "text-muted"}`}
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={1.5}
@@ -28,7 +28,7 @@ const navItems = [
     label: "Cellar",
     icon: (active: boolean) => (
       <svg
-        className={`w-6 h-6 ${active ? "text-wine-glow" : "text-white/40"}`}
+        className={`w-6 h-6 ${active ? "text-accent" : "text-muted"}`}
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={1.5}
@@ -47,7 +47,7 @@ const navItems = [
     label: "Friends",
     icon: (active: boolean) => (
       <svg
-        className={`w-6 h-6 ${active ? "text-wine-glow" : "text-white/40"}`}
+        className={`w-6 h-6 ${active ? "text-accent" : "text-muted"}`}
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={1.5}
@@ -66,7 +66,7 @@ const navItems = [
     label: "Profile",
     icon: (active: boolean) => (
       <svg
-        className={`w-6 h-6 ${active ? "text-wine-glow" : "text-white/40"}`}
+        className={`w-6 h-6 ${active ? "text-accent" : "text-muted"}`}
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={1.5}
@@ -99,7 +99,7 @@ export function BottomNav() {
               {item.icon(isActive)}
               <span
                 className={`text-[10px] font-medium ${
-                  isActive ? "text-wine-glow" : "text-white/40"
+                  isActive ? "text-accent" : "text-muted"
                 }`}
               >
                 {item.label}

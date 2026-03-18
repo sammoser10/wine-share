@@ -27,7 +27,7 @@ export function Avatar({ name, imageUrl, size = "md" }: AvatarProps) {
 
   return (
     <div
-      className={`${sizeClasses[size]} rounded-full flex items-center justify-center bg-wine/30 border border-wine-glow/20 font-semibold text-wine-glow`}
+      className={`${sizeClasses[size]} rounded-full flex items-center justify-center bg-accent/10 border border-accent/20 font-semibold text-accent`}
     >
       {getInitials(name)}
     </div>

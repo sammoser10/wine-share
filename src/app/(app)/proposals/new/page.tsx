@@ -14,7 +14,6 @@ export default function NewProposalPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  // Bottle info
   const [wineName, setWineName] = useState("");
   const [producer, setProducer] = useState("");
   const [vintage, setVintage] = useState("");
@@ -22,12 +21,10 @@ export default function NewProposalPage() {
   const [varietal, setVarietal] = useState("");
   const [imageUrl, setImageUrl] = useState("");
 
-  // Cost
   const [price, setPrice] = useState("");
   const [tax, setTax] = useState("");
   const [shipping, setShipping] = useState("");
 
-  // Friends
   const [friends, setFriends] = useState<Profile[]>([]);
   const [selectedFriends, setSelectedFriends] = useState<string[]>([]);
 
@@ -64,7 +61,7 @@ export default function NewProposalPage() {
     (parseFloat(tax) || 0) +
     (parseFloat(shipping) || 0);
 
-  const splitCount = selectedFriends.length + 1; // +1 for creator
+  const splitCount = selectedFriends.length + 1;
   const perPerson = total / splitCount;
 
   const toggleFriend = (id: string) => {
@@ -78,7 +75,6 @@ export default function NewProposalPage() {
     if (!user || selectedFriends.length === 0) return;
     setSubmitting(true);
 
-    // Create bottle
     const { data: bottle } = await supabase
       .from("bottles")
       .insert({
@@ -97,7 +93,6 @@ export default function NewProposalPage() {
       return;
     }
 
-    // Create proposal
     const { data: proposal } = await supabase
       .from("proposals")
       .insert({
@@ -117,7 +112,6 @@ export default function NewProposalPage() {
       return;
     }
 
-    // Create splits for each friend
     const splits = selectedFriends.map((friendId) => ({
       proposal_id: proposal.id,
       user_id: friendId,
@@ -155,9 +149,8 @@ export default function NewProposalPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {/* Wine Details */}
         <GlassCard>
-          <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">
+          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-3">
             Wine Details
           </h2>
           <div className="flex flex-col gap-3">
@@ -210,14 +203,13 @@ export default function NewProposalPage() {
           </div>
         </GlassCard>
 
-        {/* Pricing */}
         <GlassCard>
-          <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">
+          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-3">
             Pricing
           </h2>
           <div className="flex flex-col gap-3">
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 text-sm">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">
                 $
               </span>
               <input
@@ -232,7 +224,7 @@ export default function NewProposalPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 text-sm">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">
                   $
                 </span>
                 <input
@@ -245,7 +237,7 @@ export default function NewProposalPage() {
                 />
               </div>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 text-sm">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">
                   $
                 </span>
                 <input
@@ -259,21 +251,20 @@ export default function NewProposalPage() {
               </div>
             </div>
             <div className="flex items-center justify-between pt-2 border-t border-glass-border">
-              <span className="text-sm text-white/40">Total</span>
-              <span className="text-xl font-bold text-wine-glow">
+              <span className="text-sm text-muted">Total</span>
+              <span className="text-xl font-bold text-accent">
                 {formatCurrency(total)}
               </span>
             </div>
           </div>
         </GlassCard>
 
-        {/* Split With */}
         <GlassCard>
-          <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">
+          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-3">
             Split With
           </h2>
           {friends.length === 0 ? (
-            <p className="text-white/30 text-sm text-center py-4">
+            <p className="text-muted text-sm text-center py-4">
               Add friends first to create proposals
             </p>
           ) : (
@@ -287,8 +278,8 @@ export default function NewProposalPage() {
                     onClick={() => toggleFriend(friend.id)}
                     className={`flex items-center gap-3 p-2.5 rounded-xl transition-all ${
                       selected
-                        ? "bg-wine/20 border border-wine-glow/30"
-                        : "border border-transparent hover:bg-white/[0.03]"
+                        ? "bg-accent/10 border border-accent/20"
+                        : "border border-transparent hover:bg-foreground/[0.02]"
                     }`}
                   >
                     <Avatar name={friend.display_name} />
@@ -297,7 +288,7 @@ export default function NewProposalPage() {
                     </span>
                     {selected && (
                       <svg
-                        className="w-5 h-5 text-wine-glow"
+                        className="w-5 h-5 text-accent"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
@@ -317,10 +308,10 @@ export default function NewProposalPage() {
           {selectedFriends.length > 0 && total > 0 && (
             <div className="mt-4 pt-3 border-t border-glass-border">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-white/40">
+                <span className="text-sm text-muted">
                   Per person ({splitCount}-way split)
                 </span>
-                <span className="text-lg font-bold text-wine-glow">
+                <span className="text-lg font-bold text-accent">
                   {formatCurrency(perPerson)}
                 </span>
               </div>
@@ -328,7 +319,6 @@ export default function NewProposalPage() {
           )}
         </GlassCard>
 
-        {/* Notes */}
         <GlassCard>
           <textarea
             placeholder="Notes (optional)"
@@ -341,7 +331,7 @@ export default function NewProposalPage() {
         <button
           type="submit"
           disabled={submitting || !wineName || !producer || !price || selectedFriends.length === 0}
-          className="wine-btn px-4 py-3.5 text-sm font-semibold disabled:opacity-40"
+          className="accent-btn px-4 py-3.5 text-sm font-semibold disabled:opacity-40"
         >
           {submitting ? "Sending Proposal..." : "Send Proposal"}
         </button>

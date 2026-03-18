@@ -27,13 +27,11 @@ export default function FriendsPage() {
   const fetchFriends = useCallback(async () => {
     if (!user) return;
 
-    // Get friendships where I'm requester
     const { data: sent } = await supabase
       .from("friendships")
       .select("*, addressee:profiles!friendships_addressee_id_fkey(*)")
       .eq("requester_id", user.id);
 
-    // Get friendships where I'm addressee
     const { data: received } = await supabase
       .from("friendships")
       .select("*, requester:profiles!friendships_requester_id_fkey(*)")
@@ -123,7 +121,6 @@ export default function FriendsPage() {
     <div className="px-5 pt-6 max-w-lg mx-auto">
       <h1 className="text-2xl font-bold mb-6">Friends</h1>
 
-      {/* Search */}
       <form onSubmit={handleSearch} className="flex gap-2 mb-6">
         <input
           type="email"
@@ -132,13 +129,13 @@ export default function FriendsPage() {
           onChange={(e) => setSearchEmail(e.target.value)}
           className="glass-input flex-1 px-4 py-2.5 text-sm"
         />
-        <button type="submit" className="wine-btn px-4 py-2.5 text-sm">
+        <button type="submit" className="accent-btn px-4 py-2.5 text-sm">
           Find
         </button>
       </form>
 
       {searchError && (
-        <p className="text-red-400 text-xs mb-4 text-center">{searchError}</p>
+        <p className="text-red-500 text-xs mb-4 text-center">{searchError}</p>
       )}
 
       {searchResult && (
@@ -150,13 +147,13 @@ export default function FriendsPage() {
                 <p className="font-medium text-sm">
                   {searchResult.display_name}
                 </p>
-                <p className="text-white/30 text-xs">{searchResult.email}</p>
+                <p className="text-muted text-xs">{searchResult.email}</p>
               </div>
             </div>
             <button
               onClick={() => sendRequest(searchResult.id)}
               disabled={sending}
-              className="wine-btn px-3 py-1.5 text-xs"
+              className="accent-btn px-3 py-1.5 text-xs"
             >
               {sending ? "..." : "Add"}
             </button>
@@ -164,10 +161,9 @@ export default function FriendsPage() {
         </GlassCard>
       )}
 
-      {/* Pending Requests */}
       {pendingReceived.length > 0 && (
         <div className="mb-8">
-          <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">
+          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-3">
             Pending Requests
           </h2>
           <div className="flex flex-col gap-3">
@@ -180,7 +176,7 @@ export default function FriendsPage() {
                       <p className="font-medium text-sm">
                         {f.friend.display_name}
                       </p>
-                      <p className="text-white/30 text-xs">
+                      <p className="text-muted text-xs">
                         wants to connect
                       </p>
                     </div>
@@ -188,13 +184,13 @@ export default function FriendsPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => respondToRequest(f.id, "accepted")}
-                      className="wine-btn px-3 py-1.5 text-xs"
+                      className="accent-btn px-3 py-1.5 text-xs"
                     >
                       Accept
                     </button>
                     <button
                       onClick={() => respondToRequest(f.id, "declined")}
-                      className="glass-btn px-3 py-1.5 text-xs text-red-400"
+                      className="glass-btn px-3 py-1.5 text-xs text-red-500"
                     >
                       Decline
                     </button>
@@ -206,13 +202,12 @@ export default function FriendsPage() {
         </div>
       )}
 
-      {/* Friends List */}
-      <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">
+      <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-3">
         Your Friends ({friends.length})
       </h2>
       {friends.length === 0 ? (
         <GlassCard className="text-center py-8">
-          <p className="text-white/30 text-sm">
+          <p className="text-muted text-sm">
             No friends yet. Search by email to add friends!
           </p>
         </GlassCard>
@@ -227,7 +222,7 @@ export default function FriendsPage() {
                     {f.friend.display_name}
                   </p>
                   {f.friend.venmo_username && (
-                    <p className="text-white/30 text-xs">
+                    <p className="text-muted text-xs">
                       @{f.friend.venmo_username}
                     </p>
                   )}

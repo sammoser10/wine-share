@@ -33,10 +33,10 @@ export function WineBottleImage({
 
   return (
     <div
-      className={`${sizeClasses[size]} rounded-2xl border border-glass-border flex-shrink-0 flex items-center justify-center bg-wine/10`}
+      className={`${sizeClasses[size]} rounded-2xl border border-glass-border flex-shrink-0 flex items-center justify-center bg-accent/5`}
     >
       <svg
-        className="w-8 h-8 text-wine-glow/40"
+        className="w-8 h-8 text-accent/30"
         fill="currentColor"
         viewBox="0 0 24 24"
       >

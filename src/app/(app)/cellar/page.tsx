@@ -35,7 +35,6 @@ export default function CellarPage() {
   const fetchCellar = useCallback(async () => {
     if (!user) return;
 
-    // Get cellar bottles where I'm an owner
     const { data: myOwned } = await supabase
       .from("cellar_owners")
       .select("cellar_bottle_id")
@@ -104,14 +103,13 @@ export default function CellarPage() {
     <div className="px-5 pt-6 max-w-lg mx-auto">
       <h1 className="text-2xl font-bold mb-4">Cellar</h1>
 
-      {/* Tabs */}
       <div className="flex gap-2 mb-6">
         <button
           onClick={() => setTab("active")}
           className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${
             tab === "active"
-              ? "wine-btn"
-              : "glass-btn text-white/40"
+              ? "accent-btn"
+              : "glass-btn text-muted"
           }`}
         >
           Active ({bottles.filter((b) => b.status === "active").length})
@@ -120,8 +118,8 @@ export default function CellarPage() {
           onClick={() => setTab("consumed")}
           className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${
             tab === "consumed"
-              ? "wine-btn"
-              : "glass-btn text-white/40"
+              ? "accent-btn"
+              : "glass-btn text-muted"
           }`}
         >
           Consumed ({bottles.filter((b) => b.status === "consumed").length})
@@ -130,7 +128,7 @@ export default function CellarPage() {
 
       {filteredBottles.length === 0 ? (
         <GlassCard className="text-center py-10">
-          <p className="text-white/30 text-sm">
+          <p className="text-muted text-sm">
             {tab === "active"
               ? "No bottles in your cellar yet. Accept a proposal to get started!"
               : "No consumed bottles yet. Enjoy your wine!"}
@@ -152,12 +150,12 @@ export default function CellarPage() {
                       <h3 className="font-semibold text-sm">
                         {cb.bottle?.name}
                       </h3>
-                      <p className="text-white/40 text-xs">
+                      <p className="text-muted text-xs">
                         {cb.bottle?.producer}
                         {cb.bottle?.vintage ? ` · ${cb.bottle.vintage}` : ""}
                       </p>
                       {cb.bottle?.region && (
-                        <p className="text-white/25 text-xs">
+                        <p className="text-muted/60 text-xs">
                           {cb.bottle.region}
                           {cb.bottle.varietal ? ` · ${cb.bottle.varietal}` : ""}
                         </p>
@@ -166,12 +164,11 @@ export default function CellarPage() {
                     <StatusBadge status={cb.status} />
                   </div>
 
-                  {/* Holder */}
                   <div className="flex items-center gap-2 mt-3">
                     <Avatar name={cb.holder?.display_name || ""} size="sm" />
-                    <span className="text-xs text-white/40">
+                    <span className="text-xs text-muted">
                       Held by{" "}
-                      <span className="text-white/60">
+                      <span className="text-foreground/70">
                         {cb.holder_id === user?.id
                           ? "you"
                           : cb.holder?.display_name}
@@ -179,9 +176,8 @@ export default function CellarPage() {
                     </span>
                   </div>
 
-                  {/* Co-owners */}
                   <div className="flex items-center gap-1 mt-2">
-                    <span className="text-xs text-white/25 mr-1">Shared:</span>
+                    <span className="text-xs text-muted/60 mr-1">Shared:</span>
                     {cb.cellar_owners?.map((o) => (
                       <Avatar
                         key={o.user_id}
@@ -191,13 +187,12 @@ export default function CellarPage() {
                     ))}
                   </div>
 
-                  {/* Consume date proposal */}
                   {cb.status === "active" && cb.consume_proposed_date && (
                     <div className="mt-2 flex items-center gap-1.5">
-                      <svg className="w-3.5 h-3.5 text-purple-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                      <svg className="w-3.5 h-3.5 text-accent" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
                       </svg>
-                      <span className="text-xs text-purple-400">
+                      <span className="text-xs text-accent">
                         Proposed:{" "}
                         {new Date(cb.consume_proposed_date).toLocaleDateString("en-US", {
                           month: "short",
@@ -209,7 +204,7 @@ export default function CellarPage() {
                   )}
 
                   {cb.status === "consumed" && cb.consumed_at && (
-                    <p className="text-xs text-purple-400/60 mt-2">
+                    <p className="text-xs text-accent/60 mt-2">
                       Consumed{" "}
                       {new Date(cb.consumed_at).toLocaleDateString("en-US", {
                         month: "short",
@@ -219,7 +214,6 @@ export default function CellarPage() {
                     </p>
                   )}
 
-                  {/* Actions for active bottles */}
                   {cb.status === "active" && (
                     <div className="flex gap-2 mt-3">
                       {proposingDate === cb.id ? (
@@ -232,7 +226,7 @@ export default function CellarPage() {
                           />
                           <button
                             onClick={() => proposeConsumeDate(cb.id)}
-                            className="wine-btn px-2 py-1 text-xs"
+                            className="accent-btn px-2 py-1 text-xs"
                           >
                             Set
                           </button>
@@ -256,7 +250,7 @@ export default function CellarPage() {
                           </button>
                           <button
                             onClick={() => markConsumed(cb.id)}
-                            className="glass-btn px-3 py-1.5 text-xs text-purple-400"
+                            className="glass-btn px-3 py-1.5 text-xs text-accent"
                           >
                             Mark Consumed
                           </button>

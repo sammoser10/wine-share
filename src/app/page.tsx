@@ -19,11 +19,11 @@ export default function Home() {
   }, [user, loading, router]);
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-wine-gradient min-h-screen">
+    <div className="flex flex-1 items-center justify-center bg-app-gradient min-h-screen">
       <div className="flex flex-col items-center gap-4">
-        <div className="w-16 h-16 rounded-full bg-wine/30 border border-wine-glow/30 flex items-center justify-center">
+        <div className="w-16 h-16 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center">
           <svg
-            className="w-8 h-8 text-wine-glow"
+            className="w-8 h-8 text-accent"
             fill="currentColor"
             viewBox="0 0 24 24"
           >
@@ -31,7 +31,7 @@ export default function Home() {
           </svg>
         </div>
         <h1 className="text-2xl font-bold text-foreground">Compartir</h1>
-        <div className="w-6 h-6 border-2 border-wine-glow/40 border-t-wine-glow rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
       </div>
     </div>
   );

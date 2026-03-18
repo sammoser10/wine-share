@@ -18,8 +18,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   if (loading) {
     return (
-      <div className="flex flex-1 items-center justify-center min-h-screen bg-wine-gradient">
-        <div className="w-6 h-6 border-2 border-wine-glow/40 border-t-wine-glow rounded-full animate-spin" />
+      <div className="flex flex-1 items-center justify-center min-h-screen bg-app-gradient">
+        <div className="w-6 h-6 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
       </div>
     );
   }
@@ -27,7 +27,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   if (!user) return null;
 
   return (
-    <div className="flex flex-col min-h-screen bg-wine-gradient">
+    <div className="flex flex-col min-h-screen bg-app-gradient">
       <NotificationPrompt />
       <main className="flex-1 pb-20 safe-top">{children}</main>
       <BottomNav />

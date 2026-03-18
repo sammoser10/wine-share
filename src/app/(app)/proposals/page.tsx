@@ -32,7 +32,6 @@ export default function ProposalsPage() {
   const fetchProposals = useCallback(async () => {
     if (!user) return;
 
-    // Proposals I created
     const { data: created } = await supabase
       .from("proposals")
       .select(
@@ -41,7 +40,6 @@ export default function ProposalsPage() {
       .eq("creator_id", user.id)
       .order("created_at", { ascending: false });
 
-    // Proposals I'm split on
     const { data: splitIds } = await supabase
       .from("proposal_splits")
       .select("proposal_id")
@@ -87,7 +85,6 @@ export default function ProposalsPage() {
       .update({ status })
       .eq("id", splitId);
 
-    // Check if all splits accepted -> update proposal status
     const split = proposals
       .flatMap((p) => p.proposal_splits)
       .find((s) => s.id === splitId);
@@ -105,7 +102,6 @@ export default function ProposalsPage() {
             .update({ status: "accepted" })
             .eq("id", proposal.id);
 
-          // Create cellar bottle
           const { data: cellarBottle } = await supabase
             .from("cellar_bottles")
             .insert({
@@ -118,7 +114,6 @@ export default function ProposalsPage() {
             .single();
 
           if (cellarBottle) {
-            // Add all participants as owners
             const owners = [
               { cellar_bottle_id: cellarBottle.id, user_id: proposal.creator_id },
               ...proposal.proposal_splits.map((s) => ({
@@ -154,7 +149,7 @@ export default function ProposalsPage() {
     <div className="px-5 pt-6 max-w-lg mx-auto">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Proposals</h1>
-        <Link href="/proposals/new" className="wine-btn px-4 py-2 text-sm">
+        <Link href="/proposals/new" className="accent-btn px-4 py-2 text-sm">
           + New
         </Link>
       </div>
@@ -163,16 +158,16 @@ export default function ProposalsPage() {
         <GlassCard className="text-center py-12">
           <div className="flex flex-col items-center gap-3">
             <svg
-              className="w-12 h-12 text-white/10"
+              className="w-12 h-12 text-foreground/10"
               fill="currentColor"
               viewBox="0 0 24 24"
             >
               <path d="M12 2C11.5 2 11 2.19 10.59 2.59L7.29 5.88C6.5 6.67 6 7.83 6 9C6 11.21 7.79 13 10 13V22H14V13C16.21 13 18 11.21 18 9C18 7.83 17.5 6.67 16.71 5.88L13.41 2.59C13 2.19 12.5 2 12 2Z" />
             </svg>
-            <p className="text-white/30 text-sm">No proposals yet</p>
+            <p className="text-muted text-sm">No proposals yet</p>
             <Link
               href="/proposals/new"
-              className="wine-btn px-4 py-2 text-xs mt-2"
+              className="accent-btn px-4 py-2 text-xs mt-2"
             >
               Create your first proposal
             </Link>
@@ -199,7 +194,7 @@ export default function ProposalsPage() {
                         <h3 className="font-semibold text-sm truncate">
                           {proposal.bottle?.name}
                         </h3>
-                        <p className="text-white/40 text-xs truncate">
+                        <p className="text-muted text-xs truncate">
                           {proposal.bottle?.producer}
                         </p>
                       </div>
@@ -207,16 +202,15 @@ export default function ProposalsPage() {
                     </div>
 
                     <div className="flex items-center gap-2 mt-2">
-                      <span className="text-lg font-bold text-wine-glow">
+                      <span className="text-lg font-bold text-accent">
                         {formatCurrency(proposal.total)}
                       </span>
-                      <span className="text-white/20 text-xs">total</span>
+                      <span className="text-muted/60 text-xs">total</span>
                     </div>
 
-                    {/* Split details */}
                     <div className="flex items-center gap-1 mt-2 flex-wrap">
                       {isCreator && (
-                        <span className="text-xs text-white/30">
+                        <span className="text-xs text-muted">
                           You + {proposal.proposal_splits.length} friend
                           {proposal.proposal_splits.length > 1 ? "s" : ""}
                         </span>
@@ -227,19 +221,18 @@ export default function ProposalsPage() {
                             name={proposal.creator.display_name}
                             size="sm"
                           />
-                          <span className="text-xs text-white/30">
+                          <span className="text-xs text-muted">
                             from {proposal.creator.display_name}
                           </span>
                         </div>
                       )}
                     </div>
 
-                    {/* My split action */}
                     {mySplit && mySplit.status === "pending" && (
                       <div className="flex items-center gap-2 mt-3">
-                        <span className="text-sm font-medium text-white/60">
+                        <span className="text-sm font-medium text-foreground/60">
                           Your share:{" "}
-                          <span className="text-white">
+                          <span className="text-foreground">
                             {formatCurrency(mySplit.share_amount)}
                           </span>
                         </span>
@@ -248,7 +241,7 @@ export default function ProposalsPage() {
                             onClick={() =>
                               handleSplitResponse(mySplit.id, "accepted")
                             }
-                            className="wine-btn px-3 py-1 text-xs"
+                            className="accent-btn px-3 py-1 text-xs"
                           >
                             Accept
                           </button>
@@ -256,7 +249,7 @@ export default function ProposalsPage() {
                             onClick={() =>
                               handleSplitResponse(mySplit.id, "declined")
                             }
-                            className="glass-btn px-3 py-1 text-xs text-red-400"
+                            className="glass-btn px-3 py-1 text-xs text-red-500"
                           >
                             Decline
                           </button>
@@ -264,7 +257,6 @@ export default function ProposalsPage() {
                       </div>
                     )}
 
-                    {/* Venmo pay link after accepting */}
                     {mySplit &&
                       mySplit.status === "accepted" &&
                       proposal.creator.venmo_username && (
@@ -274,8 +266,7 @@ export default function ProposalsPage() {
                             mySplit.share_amount,
                             `Compartir - ${proposal.bottle?.name}`
                           )}
-                          onClick={(e) => {
-                            // Fallback to web if deep link fails
+                          onClick={() => {
                             setTimeout(() => {
                               window.location.href = getVenmoWebLink(
                                 proposal.creator.venmo_username!,
@@ -284,7 +275,7 @@ export default function ProposalsPage() {
                               );
                             }, 500);
                           }}
-                          className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-blue-400 hover:text-blue-300"
+                          className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-accent hover:text-accent-light"
                         >
                           <svg
                             className="w-4 h-4"
@@ -297,7 +288,6 @@ export default function ProposalsPage() {
                         </a>
                       )}
 
-                    {/* Creator view of split statuses */}
                     {isCreator && (
                       <div className="flex gap-1 mt-2">
                         {proposal.proposal_splits.map((s) => (
@@ -315,7 +305,7 @@ export default function ProposalsPage() {
                       </div>
                     )}
 
-                    <p className="text-white/15 text-[10px] mt-2">
+                    <p className="text-muted/40 text-[10px] mt-2">
                       {timeAgo(proposal.created_at)}
                     </p>
                   </div>

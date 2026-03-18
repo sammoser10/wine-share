@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import {
   requestNotificationPermission,
@@ -13,27 +13,54 @@ export function NotificationPrompt() {
   const [show, setShow] = useState(false);
   const [enabling, setEnabling] = useState(false);
 
+  const dismiss = useCallback(() => {
+    setShow(false);
+    setEnabling(false);
+    // Remember dismissal so it doesn't re-appear this session
+    try {
+      sessionStorage.setItem("notif-dismissed", "1");
+    } catch {}
+  }, []);
+
   useEffect(() => {
     if (!user) return;
     if (!("Notification" in window)) return;
     if (Notification.permission !== "default") return;
+    try {
+      if (sessionStorage.getItem("notif-dismissed")) return;
+    } catch {}
 
-    // Show prompt after a delay
     const timer = setTimeout(() => setShow(true), 3000);
     return () => clearTimeout(timer);
   }, [user]);
 
+  // Dismiss when returning from the OS permission dialog
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible" && enabling) {
+        // Permission was answered — dismiss regardless of outcome
+        dismiss();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibility);
+  }, [enabling, dismiss]);
+
   const handleEnable = async () => {
     setEnabling(true);
-    const granted = await requestNotificationPermission();
-    if (granted && user) {
-      const subscription = await subscribeToPush();
-      if (subscription) {
-        await savePushSubscription(user.id, subscription);
+    try {
+      const granted = await requestNotificationPermission();
+      if (granted && user) {
+        const subscription = await subscribeToPush();
+        if (subscription) {
+          await savePushSubscription(user.id, subscription);
+        }
       }
+    } catch {
+      // Permission denied or error — still dismiss
     }
-    setShow(false);
-    setEnabling(false);
+    dismiss();
   };
 
   if (!show) return null;
@@ -42,9 +69,9 @@ export function NotificationPrompt() {
     <div className="fixed top-4 left-4 right-4 z-50 max-w-sm mx-auto">
       <div className="glass-card p-4">
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-wine/30 border border-wine-glow/20 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center flex-shrink-0">
             <svg
-              className="w-5 h-5 text-wine-glow"
+              className="w-5 h-5 text-accent"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1.5}
@@ -59,20 +86,20 @@ export function NotificationPrompt() {
           </div>
           <div className="flex-1">
             <p className="text-sm font-medium">Enable Notifications</p>
-            <p className="text-xs text-white/40 mt-0.5">
+            <p className="text-xs text-muted mt-0.5">
               Get notified about new proposals and friend requests
             </p>
             <div className="flex gap-2 mt-3">
               <button
                 onClick={handleEnable}
                 disabled={enabling}
-                className="wine-btn px-3 py-1.5 text-xs"
+                className="accent-btn px-3 py-1.5 text-xs"
               >
                 {enabling ? "Enabling..." : "Enable"}
               </button>
               <button
-                onClick={() => setShow(false)}
-                className="glass-btn px-3 py-1.5 text-xs text-white/40"
+                onClick={dismiss}
+                className="glass-btn px-3 py-1.5 text-xs text-muted"
               >
                 Later
               </button>
