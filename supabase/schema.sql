@@ -132,19 +132,24 @@ create table public.proposal_splits (
 
 alter table public.proposal_splits enable row level security;
 
+-- Helper to check proposal ownership without triggering RLS on proposals
+-- (avoids infinite recursion: proposals SELECT -> proposal_splits -> proposals SELECT)
+create or replace function public.is_proposal_creator(p_proposal_id uuid, p_user_id uuid)
+returns boolean as $$
+  select exists (
+    select 1 from public.proposals where id = p_proposal_id and creator_id = p_user_id
+  );
+$$ language sql security definer;
+
 create policy "Users can view own splits"
   on proposal_splits for select using (
     auth.uid() = user_id or
-    exists (
-      select 1 from proposals where id = proposal_splits.proposal_id and creator_id = auth.uid()
-    )
+    public.is_proposal_creator(proposal_id, auth.uid())
   );
 
 create policy "Proposal creators can create splits"
   on proposal_splits for insert with check (
-    exists (
-      select 1 from proposals where id = proposal_splits.proposal_id and creator_id = auth.uid()
-    )
+    public.is_proposal_creator(proposal_id, auth.uid())
   );
 
 create policy "Split users can update own splits"
